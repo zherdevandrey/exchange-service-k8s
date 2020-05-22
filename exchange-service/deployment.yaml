@@ -23,6 +23,13 @@ spec:
         ports:
         - name: liveness-port
           containerPort: 8000
+        resources:
+          requests:
+            cpu: 100m
+            memory: 512Mi
+          limits:
+            cpu: 500
+            memory: 1024Mi
       restartPolicy: Always
       terminationGracePeriodSeconds: 30
 
@@ -45,3 +52,19 @@ spec:
     app: exchange-service
   sessionAffinity: None 
   type: NodePort
+
+---
+
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: exchange-service
+  namespace: default
+spec:
+  minReplicas: 1
+  maxReplicas: 3
+  scaleTargetRef:
+    apiVersion: extensions/v1beta1
+    kind: Deployment
+    name: exchange-service
+  targetCPUUtilizationPercentage: 10
